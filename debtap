@@ -100,7 +100,10 @@ elif [[ $update == set ]]; then
             elif [[ "$(uname -m)" == "aarch64" ]]; then
                 _arch=arm64
             fi
-            ubuntu_latest_stable_version=$(curl -k -s https://packages.ubuntu.com | grep option | gawk -F '=' '{print $2}' | gawk '{print $1}' | grep -v option | tac | sed -n 3'{p;q;}' | sed s'/\("\|-updated\|-backports\)//g')
+            ubuntu_latest_stable_version=$(curl -fsSL https://changelogs.ubuntu.com/meta-release | gawk -F ': ' '$1 == "Dist" { dist=$2 } $1 == "Supported" && $2 == "1" { latest=dist } END { print latest }')
+            if [[ -z "$ubuntu_latest_stable_version" ]]; then
+                echo -e "${red}Unable to determine the latest supported Ubuntu release. Exiting...${NC}"; exit 1
+            fi
             curl -k -C - -f http://ftp.debian.org/debian/dists/sid/main/Contents-$_arch.gz > /var/cache/debtap/debian-main-packages-files.gz
             gzip -df /var/cache/debtap/debian-main-packages-files.gz
             curl -k -C - -f http://ftp.debian.org/debian/dists/sid/non-free/Contents-$_arch.gz > /var/cache/debtap/debian-non-free-packages-files.gz
