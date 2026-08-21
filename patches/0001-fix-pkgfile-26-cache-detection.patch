@@ -1,0 +1,12 @@
+From: Wyndar maintenance fork
+Subject: [PATCH] Fix pkgfile 26 cache detection
+
+Current pkgfile writes cache files as <repo>.files. Older versions may use
+<repo>.files.NNN. The existing expression starts with a bare '*' and requires
+the numeric suffix, so debtap rejects a freshly updated pkgfile 26 database.
+
+--- a/debtap
++++ b/debtap
+@@
+-if [[ ! $(ls /var/cache/pkgfile | grep -E '*.files?(.[[:digit:]]{3})' 2> /dev/null) ]] || [[ ! $(ls /var/cache/debtap/*-packages-files 2> /dev/null) ]] || [[ ! -e /var/cache/debtap/extended-base-packages-list ]] || [[ ! -e /var/cache/debtap/aur-packages ]] || [[ ! -e /var/cache/debtap/virtual-packages ]]; then
++if [[ ! $(ls /var/cache/pkgfile 2> /dev/null | grep -E '\.files(\.[[:digit:]]{3})?$') ]] || [[ ! $(ls /var/cache/debtap/*-packages-files 2> /dev/null) ]] || [[ ! -e /var/cache/debtap/extended-base-packages-list ]] || [[ ! -e /var/cache/debtap/aur-packages ]] || [[ ! -e /var/cache/debtap/virtual-packages ]]; then
