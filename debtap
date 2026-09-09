@@ -567,6 +567,9 @@ echo -e "\n${lightgreen}***${NC} ${bold}Creation of .PKGINFO file in progress. I
 
 # The packages names translator function
 packages-names-translator() {
+	# libstdc++N is Debian's versioned runtime package name; Arch uses libstdc++.
+	sed -i -E 's/^libstdc\+\+[0-9]+([[:space:]]|$)/libstdc++\1/' $(ls | grep initial-check-list)
+
 	# First method of translating .deb packages names into Arch Linux packages names, more accurate, comparing contents of .deb packages with Arch Linux packages contents
 	for debian_package_name in $(gawk '{print $1}' $(ls | grep initial-check-list)); do
 		for debian_package_file in $(grep "/$debian_package_name$" /var/cache/debtap/debian-main-packages-files /var/cache/debtap/debian-non-free-packages-files /var/cache/debtap/debian-contrib-packages-files | grep 'bin\|opt\|\.so' | gawk '{print $1}' | sed s'/\// /g' | gawk '{print $NF}'); do
